@@ -15,6 +15,7 @@ import styled from "styled-components/native";
 
 const ConverterContainer = styled.View`
   padding: ${vs(theme.spacing.lg)}px;
+  padding-top: ${vs(48)}px;
 `;
 
 const RateInfoContainer = styled.View`
