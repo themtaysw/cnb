@@ -34,12 +34,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   version: VERSION,
   name,
-  slug: "caliplaces",
-  scheme: "caliplaces",
+  slug: "cnb",
+  scheme: "cnb",
   userInterfaceStyle: "automatic",
   newArchEnabled: true,
   runtimeVersion: VERSION,
-  owner: "caliplaces",
+  owner: "matejcp",
   orientation: "portrait",
   icon: "./assets/images/icon.png",
   extra: {
@@ -57,13 +57,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   ios: {
     bundleIdentifier: appIdentifier,
-    supportsTablet: true,
-    infoPlist: {
-      CFBundleAllowMixedLocalizations: true,
-      LSApplicationQueriesSchemes: ["itms-apps"],
-      NSLocationWhenInUseUsageDescription:
-        "We need your location to be able to help you explore nearby places.",
-    },
+    supportsTablet: false,
     config: {
       usesNonExemptEncryption: false,
     },
