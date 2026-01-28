@@ -19,6 +19,9 @@ import { Area, CartesianChart, Line, useChartPressState } from "victory-native";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 const CHART_HEIGHT = SCREEN_HEIGHT * 0.5;
+const DEFAULT_CURRENCY = "EUR";
+const CURRENT_YEAR = new Date().getFullYear();
+const MIN_YEAR = 1991;
 
 const PriceContainer = styled.View`
   align-items: center;
@@ -100,10 +103,6 @@ const ErrorText = styled.Text`
   text-align: center;
 `;
 
-const DEFAULT_CURRENCY = "EUR";
-const CURRENT_YEAR = new Date().getFullYear();
-const MIN_YEAR = 1991; // CNB data available from 1991
-
 export const GraphScreen = () => {
   const { top, bottom } = useSafeAreaInsets();
   const [selectedCurrency, setSelectedCurrency] = useState(DEFAULT_CURRENCY);
@@ -119,7 +118,6 @@ export const GraphScreen = () => {
   const currencies = currenciesQuery.data ?? [DEFAULT_CURRENCY];
   const ratesData = ratesQuery.data;
 
-  // Transform data for the chart
   const chartData = useMemo(() => {
     if (!ratesData?.rates) return [];
 
@@ -130,7 +128,6 @@ export const GraphScreen = () => {
     }));
   }, [ratesData]);
 
-  // Calculate stats
   const stats = useMemo(() => {
     if (!ratesData?.rates || ratesData.rates.length === 0) {
       return { min: 0, max: 0, avg: 0, change: 0 };
@@ -147,7 +144,6 @@ export const GraphScreen = () => {
     return { min, max, avg, change };
   }, [ratesData]);
 
-  // Track active index with Reanimated for real-time updates
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   useAnimatedReaction(
@@ -158,14 +154,12 @@ export const GraphScreen = () => {
     },
   );
 
-  // Reset active index when touch ends
   useEffect(() => {
     if (!isActive) {
       setActiveIndex(null);
     }
   }, [isActive]);
 
-  // Get the active data point
   const activeDataPoint = useMemo(() => {
     if (activeIndex === null || !isActive || chartData.length === 0)
       return null;
@@ -178,7 +172,6 @@ export const GraphScreen = () => {
   const isLoading = currenciesQuery.isLoading || ratesQuery.isLoading;
   const hasError = ratesQuery.error || !ratesData;
 
-  // Get display values
   const displayRate = activeDataPoint
     ? activeDataPoint.rate
     : (chartData[chartData.length - 1]?.rate ?? 0);
@@ -186,7 +179,6 @@ export const GraphScreen = () => {
     ? activeDataPoint.date
     : (chartData[chartData.length - 1]?.date ?? "");
 
-  // Calculate change from first to displayed rate
   const changeAmount = useMemo(() => {
     if (chartData.length === 0) return 0;
     const first = chartData[0].rate;

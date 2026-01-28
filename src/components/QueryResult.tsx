@@ -45,7 +45,6 @@ export const QueryResult = ({
     );
   }
 
-  // Handle error state
   const errorQuery = queries.find((q) => q.error != null);
 
   if (!ignoreError && errorQuery?.error) {

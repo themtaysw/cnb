@@ -2,10 +2,13 @@ import theme from "@/src/theme";
 import { currencyToFlag } from "@/src/utils/currencyToEmoji";
 import { vs } from "@/src/utils/normalize";
 import { useState } from "react";
-import { FlatList, Modal, Pressable } from "react-native";
 import styled from "styled-components/native";
 
-// Minimal variant (for graph screen - big text)
+import {
+  CurrencySelectModal,
+  type CurrencyItem,
+} from "@/src/components/ui/CurrencySelectModal";
+
 const MinimalButton = styled.Pressable`
   flex-direction: row;
   align-items: center;
@@ -27,7 +30,6 @@ const MinimalFlag = styled.Text`
   font-size: ${vs(28)}px;
 `;
 
-// Box variant (for convert screen - with background)
 const BoxButton = styled.Pressable`
   flex-direction: row;
   align-items: center;
@@ -48,88 +50,16 @@ const BoxArrow = styled.Text`
   color: ${theme.colors.secondary_text};
 `;
 
-// Modal (shared)
-const ModalContainer = styled.View`
-  flex: 1;
-  background-color: ${theme.colors.primary_bg};
-  padding-top: ${vs(60)}px;
-`;
-
-const ModalHeader = styled.View`
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  padding: ${vs(16)}px;
-  border-bottom-width: 1px;
-  border-bottom-color: ${theme.colors.secondary_bg};
-`;
-
-const ModalTitle = styled.Text`
-  font-size: ${vs(18)}px;
-  font-weight: 700;
-  color: ${theme.colors.primary_text};
-`;
-
-const CloseButtonText = styled.Text`
-  font-size: ${vs(16)}px;
-  font-weight: 600;
-  color: ${theme.colors.blue};
-`;
-
-const CurrencyItem = styled.Pressable<{ isSelected: boolean }>`
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  padding: ${vs(16)}px;
-  background-color: ${({ isSelected }) =>
-    isSelected ? theme.colors.blue + "20" : "transparent"};
-`;
-
-const CurrencyInfo = styled.View`
-  flex-direction: row;
-  align-items: center;
-  gap: ${vs(12)}px;
-`;
-
-const ItemFlag = styled.Text`
-  font-size: ${vs(24)}px;
-`;
-
-const CurrencyDetails = styled.View``;
-
-const CurrencyCode = styled.Text`
-  font-size: ${vs(16)}px;
-  font-weight: 600;
-  color: ${theme.colors.primary_text};
-`;
-
-const CurrencyCountry = styled.Text`
-  font-size: ${vs(12)}px;
-  color: ${theme.colors.secondary_text};
-`;
-
-const Checkmark = styled.Text`
-  font-size: ${vs(18)}px;
-  color: ${theme.colors.blue};
-`;
-
-type CurrencyItemData = {
-  code: string;
-  country?: string;
-};
-
 type DataItem = { code: string; country?: string };
 
 type CurrencyPickerProps = {
-  /** Array of currency codes or objects with code and country */
   data: string[] | DataItem[];
   selectedCode: string;
   onSelect: (code: string) => void;
-  /** "minimal" = big text (graph), "box" = with background (convert) */
   variant?: "minimal" | "box";
 };
 
-const normalizeData = (data: string[] | DataItem[]): CurrencyItemData[] => {
+const normalizeData = (data: string[] | DataItem[]): CurrencyItem[] => {
   if (data.length === 0) return [];
   if (typeof data[0] === "string") {
     return (data as string[]).map((code) => ({ code }));
@@ -153,11 +83,6 @@ export const CurrencyPicker = ({
     (item) => item.code === selectedCode,
   );
 
-  const handleSelect = (code: string) => {
-    onSelect(code);
-    setIsOpen(false);
-  };
-
   const displayText = selectedItem
     ? selectedItem.country
       ? `${selectedItem.code} - ${selectedItem.country}`
@@ -179,38 +104,13 @@ export const CurrencyPicker = ({
         </BoxButton>
       )}
 
-      <Modal visible={isOpen} animationType="slide">
-        <ModalContainer>
-          <ModalHeader>
-            <ModalTitle>Select Currency</ModalTitle>
-            <Pressable onPress={() => setIsOpen(false)}>
-              <CloseButtonText>Close</CloseButtonText>
-            </Pressable>
-          </ModalHeader>
-
-          <FlatList
-            data={normalizedData}
-            keyExtractor={(item) => item.code}
-            renderItem={({ item }) => (
-              <CurrencyItem
-                isSelected={item.code === selectedCode}
-                onPress={() => handleSelect(item.code)}
-              >
-                <CurrencyInfo>
-                  <ItemFlag>{currencyToFlag(item.code)}</ItemFlag>
-                  <CurrencyDetails>
-                    <CurrencyCode>{item.code}</CurrencyCode>
-                    {item.country && (
-                      <CurrencyCountry>{item.country}</CurrencyCountry>
-                    )}
-                  </CurrencyDetails>
-                </CurrencyInfo>
-                {item.code === selectedCode && <Checkmark>✓</Checkmark>}
-              </CurrencyItem>
-            )}
-          />
-        </ModalContainer>
-      </Modal>
+      <CurrencySelectModal
+        visible={isOpen}
+        onClose={() => setIsOpen(false)}
+        data={normalizedData}
+        selectedCode={selectedCode}
+        onSelect={onSelect}
+      />
     </>
   );
 };

@@ -1,3 +1,4 @@
+import { BASE_COUNTRY, BASE_CURRENCY } from "@/src/common/constants/currencies";
 import { QueryResult } from "@/src/components/QueryResult";
 import { Container } from "@/src/components/ui/Container";
 import { Content } from "@/src/components/ui/Content";
@@ -33,8 +34,6 @@ const RateValue = styled.Text`
   margin-top: ${vs(4)}px;
 `;
 
-const BASE_CURRENCY = "CZK";
-
 type ConvertScreenProps = {
   initialCode?: string;
 };
@@ -47,12 +46,10 @@ export const ConvertScreen = ({ initialCode }: ConvertScreenProps) => {
   const [fromCurrency, setFromCurrency] = useState(BASE_CURRENCY);
   const [toCurrency, setToCurrency] = useState(initialCode || "EUR");
 
-  // Build currency list including CZK
   const currencyList = useMemo(() => {
     const list = rates.map((r) => ({ code: r.code, country: r.country }));
-    // Add CZK if not present
     if (!list.find((c) => c.code === BASE_CURRENCY)) {
-      list.unshift({ code: BASE_CURRENCY, country: "Czech Republic" });
+      return [{ code: BASE_CURRENCY, country: BASE_COUNTRY }, ...list];
     }
     return list;
   }, [rates]);
@@ -67,18 +64,16 @@ export const ConvertScreen = ({ initialCode }: ConvertScreenProps) => {
     [rates, toCurrency],
   );
 
-  // Convert any currency to CZK
   const toCzk = (amount: number, rate: ExchangeRate | undefined): number => {
-    if (!rate) return amount; // Already CZK
+    if (!rate) return amount;
     return (amount * rate.rate) / rate.amount;
   };
 
-  // Convert CZK to any currency
   const fromCzk = (
     czkAmount: number,
     rate: ExchangeRate | undefined,
   ): number => {
-    if (!rate) return czkAmount; // Target is CZK
+    if (!rate) return czkAmount;
     return (czkAmount / rate.rate) * rate.amount;
   };
 
@@ -86,7 +81,6 @@ export const ConvertScreen = ({ initialCode }: ConvertScreenProps) => {
     const numAmount = parseFloat(fromAmount) || 0;
     if (numAmount === 0) return "0";
 
-    // Convert: from → CZK → to
     const inCzk =
       fromCurrency === BASE_CURRENCY ? numAmount : toCzk(numAmount, fromRate);
     const result =
@@ -95,7 +89,6 @@ export const ConvertScreen = ({ initialCode }: ConvertScreenProps) => {
     return result.toFixed(2);
   }, [fromAmount, fromCurrency, toCurrency, fromRate, toRate]);
 
-  // Calculate exchange rate display
   const exchangeRateDisplay = useMemo(() => {
     if (fromCurrency === toCurrency) return "1 = 1";
 

@@ -1,3 +1,4 @@
+import { BASE_CURRENCY } from "@/src/common/constants/currencies";
 import { Row } from "@/src/components/ui/Row";
 import theme from "@/src/theme";
 import { currencyToFlag } from "@/src/utils/currencyToEmoji";
@@ -7,8 +8,6 @@ import { router } from "expo-router";
 import styled from "styled-components/native";
 
 import CurrencyDisplay from "@/src/features/home/components/CurrencyDisplay";
-
-const BASE_CURRENCY = "CZK";
 
 const RateContainer = styled.Pressable`
   padding: ${vs(16)}px;

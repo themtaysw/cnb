@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet } from "react-native";
+import { Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import styled from "styled-components/native";
 
@@ -12,7 +12,7 @@ type Props = {
 };
 
 const HeaderContainer = styled.View`
-  padding-horizontal: ${({ theme }) => theme.spacing.lg}px;
+  padding-horizontal: ${vs(theme.spacing.xl)}px;
 `;
 
 const HeaderContent = styled.View`
@@ -30,7 +30,7 @@ export const Header = ({ title, onBack }: Props) => {
   const { top } = useSafeAreaInsets();
 
   return (
-    <HeaderContainer style={[styles.container, { paddingTop: top }]}>
+    <HeaderContainer style={{ paddingTop: top }}>
       <HeaderContent>
         {onBack && (
           <Pressable onPress={onBack}>
@@ -42,9 +42,3 @@ export const Header = ({ title, onBack }: Props) => {
     </HeaderContainer>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: vs(theme.spacing.xl),
-  },
-});

@@ -1,5 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import { ReactNode } from "react";
+import { StyleProp, ViewStyle } from "react-native";
 
 import { Box } from "@/src/components/ui/Box";
 import { Button } from "@/src/components/ui/Button";
@@ -12,7 +13,7 @@ interface Props {
   text?: string;
   buttonText?: string;
   Icon?: ReactNode;
-  style?: any;
+  style?: StyleProp<ViewStyle>;
   mode?: "light" | "dark";
   onPress?: () => void;
 }
