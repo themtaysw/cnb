@@ -1,4 +1,6 @@
+import { Row } from "@/src/components/ui/Row";
 import theme from "@/src/theme";
+import { currencyToFlag } from "@/src/utils/currencyToEmoji";
 import { vs } from "@/src/utils/normalize";
 import { ExchangeRate } from "@/src/utils/parseRates";
 import { router } from "expo-router";
@@ -15,6 +17,10 @@ const RateContainer = styled.Pressable`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+`;
+
+const Flag = styled.Text`
+  font-size: ${vs(28)}px;
 `;
 
 const InfoContainer = styled.View``;
@@ -41,13 +47,17 @@ const SingleRate = ({
   baseCurrency = BASE_CURRENCY,
 }: SingleRateProps) => {
   const isHighlighted = rate.code === baseCurrency;
+  const flag = currencyToFlag(rate.code);
 
   return (
     <RateContainer onPress={() => router.push(`/convert/${rate.code}`)}>
-      <InfoContainer>
-        <CountryName>{rate.country}</CountryName>
-        <CountryCode>{rate.code}</CountryCode>
-      </InfoContainer>
+      <Row gap={12}>
+        <Flag>{flag}</Flag>
+        <InfoContainer>
+          <CountryName>{rate.country}</CountryName>
+          <CountryCode>{rate.code}</CountryCode>
+        </InfoContainer>
+      </Row>
       <CurrencyDisplay
         code={rate.code}
         amount={rate.rate}

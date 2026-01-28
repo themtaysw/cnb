@@ -1,13 +1,14 @@
 import { QueryResult } from "@/src/components/QueryResult";
 import { Container } from "@/src/components/ui/Container";
+import { CurrencyPicker } from "@/src/components/ui/CurrencyPicker";
 import { Header } from "@/src/components/ui/Header";
 import { Input } from "@/src/components/ui/Input";
+import { Label } from "@/src/components/ui/Label";
 import { Separator } from "@/src/components/ui/Separator";
-import { CurrencyPicker } from "@/src/features/convert/components/CurrencyPicker";
 import { useRates } from "@/src/features/home/api/useRates";
 import theme from "@/src/theme";
 import { vs } from "@/src/utils/normalize";
-import { ExchangeRate } from "@/src/utils/parseRates";
+import type { ExchangeRate } from "@/src/utils/parseRates";
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import styled from "styled-components/native";
@@ -15,15 +16,6 @@ import styled from "styled-components/native";
 const Content = styled.View`
   flex: 1;
   padding: ${vs(theme.spacing.lg)}px;
-`;
-
-const Label = styled.Text`
-  font-size: ${vs(12)}px;
-  font-weight: 600;
-  color: ${theme.colors.secondary_text};
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: ${vs(8)}px;
 `;
 
 const ResultContainer = styled.View`
@@ -124,7 +116,7 @@ export const ConvertScreen = ({ initialCode }: ConvertScreenProps) => {
 
       <QueryResult query={query}>
         <Content>
-          <Label>Amount in CZK</Label>
+          <Label style={{ marginBottom: vs(8) }}>Amount in CZK</Label>
           <Input
             value={amount}
             onChangeText={handleAmountChange}
@@ -135,9 +127,9 @@ export const ConvertScreen = ({ initialCode }: ConvertScreenProps) => {
 
           <Separator size={theme.spacing.xl} />
 
-          <Label>Convert to</Label>
+          <Label style={{ marginBottom: vs(8) }}>Convert to</Label>
           <CurrencyPicker
-            rates={rates}
+            data={rates.map((r) => ({ code: r.code, country: r.country }))}
             selectedCode={selectedCode}
             onSelect={setSelectedCode}
           />

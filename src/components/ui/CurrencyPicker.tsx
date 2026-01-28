@@ -1,11 +1,29 @@
 import theme from "@/src/theme";
 import { vs } from "@/src/utils/normalize";
-import { ExchangeRate } from "@/src/utils/parseRates";
 import { useState } from "react";
 import { FlatList, Modal, Pressable } from "react-native";
 import styled from "styled-components/native";
 
-const PickerButton = styled.Pressable`
+// Minimal variant (for graph screen - big text)
+const MinimalButton = styled.Pressable`
+  flex-direction: row;
+  align-items: center;
+  gap: ${vs(8)}px;
+`;
+
+const MinimalText = styled.Text`
+  font-size: ${vs(32)}px;
+  font-weight: 700;
+  color: ${theme.colors.primary_text};
+`;
+
+const MinimalArrow = styled.Text`
+  font-size: ${vs(18)}px;
+  color: ${theme.colors.secondary_text};
+`;
+
+// Box variant (for convert screen - with background)
+const BoxButton = styled.Pressable`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
@@ -14,17 +32,18 @@ const PickerButton = styled.Pressable`
   background-color: ${theme.colors.secondary_bg};
 `;
 
-const PickerText = styled.Text`
+const BoxText = styled.Text`
   font-size: ${vs(18)}px;
   font-weight: 600;
   color: ${theme.colors.primary_text};
 `;
 
-const ChevronText = styled.Text`
+const BoxArrow = styled.Text`
   font-size: ${vs(16)}px;
   color: ${theme.colors.secondary_text};
 `;
 
+// Modal (shared)
 const ModalContainer = styled.View`
   flex: 1;
   background-color: ${theme.colors.primary_bg};
@@ -46,7 +65,7 @@ const ModalTitle = styled.Text`
   color: ${theme.colors.primary_text};
 `;
 
-const CloseButton = styled.Text`
+const CloseButtonText = styled.Text`
   font-size: ${vs(16)}px;
   font-weight: 600;
   color: ${theme.colors.blue};
@@ -79,47 +98,82 @@ const Checkmark = styled.Text`
   color: ${theme.colors.blue};
 `;
 
+type CurrencyItemData = {
+  code: string;
+  country?: string;
+};
+
+type DataItem = { code: string; country?: string };
+
 type CurrencyPickerProps = {
-  rates: ExchangeRate[];
+  /** Array of currency codes or objects with code and country */
+  data: string[] | DataItem[];
   selectedCode: string;
   onSelect: (code: string) => void;
+  /** "minimal" = big text (graph), "box" = with background (convert) */
+  variant?: "minimal" | "box";
+};
+
+const normalizeData = (data: string[] | DataItem[]): CurrencyItemData[] => {
+  if (data.length === 0) return [];
+  if (typeof data[0] === "string") {
+    return (data as string[]).map((code) => ({ code }));
+  }
+  return (data as DataItem[]).map((item) => ({
+    code: item.code,
+    country: item.country,
+  }));
 };
 
 export const CurrencyPicker = ({
-  rates,
+  data,
   selectedCode,
   onSelect,
+  variant = "box",
 }: CurrencyPickerProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const selectedRate = rates.find((r) => r.code === selectedCode);
-  const displayText = selectedRate
-    ? `${selectedRate.code} - ${selectedRate.country}`
-    : "Select currency";
+  const normalizedData = normalizeData(data);
+  const selectedItem = normalizedData.find(
+    (item) => item.code === selectedCode,
+  );
 
   const handleSelect = (code: string) => {
     onSelect(code);
     setIsOpen(false);
   };
 
+  const displayText = selectedItem
+    ? selectedItem.country
+      ? `${selectedItem.code} - ${selectedItem.country}`
+      : selectedItem.code
+    : "Select currency";
+
   return (
     <>
-      <PickerButton onPress={() => setIsOpen(true)}>
-        <PickerText>{displayText}</PickerText>
-        <ChevronText>▼</ChevronText>
-      </PickerButton>
+      {variant === "minimal" ? (
+        <MinimalButton onPress={() => setIsOpen(true)}>
+          <MinimalText>{selectedCode}</MinimalText>
+          <MinimalArrow>▼</MinimalArrow>
+        </MinimalButton>
+      ) : (
+        <BoxButton onPress={() => setIsOpen(true)}>
+          <BoxText>{displayText}</BoxText>
+          <BoxArrow>▼</BoxArrow>
+        </BoxButton>
+      )}
 
       <Modal visible={isOpen} animationType="slide">
         <ModalContainer>
           <ModalHeader>
             <ModalTitle>Select Currency</ModalTitle>
             <Pressable onPress={() => setIsOpen(false)}>
-              <CloseButton>Close</CloseButton>
+              <CloseButtonText>Close</CloseButtonText>
             </Pressable>
           </ModalHeader>
 
           <FlatList
-            data={rates}
+            data={normalizedData}
             keyExtractor={(item) => item.code}
             renderItem={({ item }) => (
               <CurrencyItem
@@ -128,7 +182,9 @@ export const CurrencyPicker = ({
               >
                 <CurrencyInfo>
                   <CurrencyCode>{item.code}</CurrencyCode>
-                  <CurrencyCountry>{item.country}</CurrencyCountry>
+                  {item.country && (
+                    <CurrencyCountry>{item.country}</CurrencyCountry>
+                  )}
                 </CurrencyInfo>
                 {item.code === selectedCode && <Checkmark>✓</Checkmark>}
               </CurrencyItem>
