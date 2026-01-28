@@ -1,4 +1,5 @@
 import theme from "@/src/theme";
+import { currencyToFlag } from "@/src/utils/currencyToEmoji";
 import { vs } from "@/src/utils/normalize";
 import { useState } from "react";
 import { FlatList, Modal, Pressable } from "react-native";
@@ -20,6 +21,10 @@ const MinimalText = styled.Text`
 const MinimalArrow = styled.Text`
   font-size: ${vs(18)}px;
   color: ${theme.colors.secondary_text};
+`;
+
+const MinimalFlag = styled.Text`
+  font-size: ${vs(28)}px;
 `;
 
 // Box variant (for convert screen - with background)
@@ -80,7 +85,17 @@ const CurrencyItem = styled.Pressable<{ isSelected: boolean }>`
     isSelected ? theme.colors.blue + "20" : "transparent"};
 `;
 
-const CurrencyInfo = styled.View``;
+const CurrencyInfo = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: ${vs(12)}px;
+`;
+
+const ItemFlag = styled.Text`
+  font-size: ${vs(24)}px;
+`;
+
+const CurrencyDetails = styled.View``;
 
 const CurrencyCode = styled.Text`
   font-size: ${vs(16)}px;
@@ -153,6 +168,7 @@ export const CurrencyPicker = ({
     <>
       {variant === "minimal" ? (
         <MinimalButton onPress={() => setIsOpen(true)}>
+          <MinimalFlag>{currencyToFlag(selectedCode)}</MinimalFlag>
           <MinimalText>{selectedCode}</MinimalText>
           <MinimalArrow>▼</MinimalArrow>
         </MinimalButton>
@@ -181,10 +197,13 @@ export const CurrencyPicker = ({
                 onPress={() => handleSelect(item.code)}
               >
                 <CurrencyInfo>
-                  <CurrencyCode>{item.code}</CurrencyCode>
-                  {item.country && (
-                    <CurrencyCountry>{item.country}</CurrencyCountry>
-                  )}
+                  <ItemFlag>{currencyToFlag(item.code)}</ItemFlag>
+                  <CurrencyDetails>
+                    <CurrencyCode>{item.code}</CurrencyCode>
+                    {item.country && (
+                      <CurrencyCountry>{item.country}</CurrencyCountry>
+                    )}
+                  </CurrencyDetails>
                 </CurrencyInfo>
                 {item.code === selectedCode && <Checkmark>✓</Checkmark>}
               </CurrencyItem>

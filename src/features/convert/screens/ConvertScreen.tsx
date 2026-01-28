@@ -1,10 +1,9 @@
 import { QueryResult } from "@/src/components/QueryResult";
 import { Container } from "@/src/components/ui/Container";
-import { CurrencyPicker } from "@/src/components/ui/CurrencyPicker";
+import { Content } from "@/src/components/ui/Content";
+import { CurrencyInputBox } from "@/src/components/ui/CurrencyInputBox";
 import { Header } from "@/src/components/ui/Header";
-import { Input } from "@/src/components/ui/Input";
-import { Label } from "@/src/components/ui/Label";
-import { Separator } from "@/src/components/ui/Separator";
+import { SwapButton } from "@/src/components/ui/SwapButton";
 import { useRates } from "@/src/features/home/api/useRates";
 import theme from "@/src/theme";
 import { vs } from "@/src/utils/normalize";
@@ -13,71 +12,28 @@ import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import styled from "styled-components/native";
 
-const Content = styled.View`
-  flex: 1;
+const ConverterContainer = styled.View`
   padding: ${vs(theme.spacing.lg)}px;
 `;
 
-const ResultContainer = styled.View`
-  padding: ${vs(24)}px;
-  border-radius: ${vs(16)}px;
-  background-color: ${theme.colors.blue}20;
+const RateInfoContainer = styled.View`
   align-items: center;
+  margin-bottom: ${vs(24)}px;
 `;
 
-const ResultLabel = styled.Text`
+const RateText = styled.Text`
   font-size: ${vs(14)}px;
   color: ${theme.colors.secondary_text};
-  margin-bottom: ${vs(8)}px;
 `;
 
-const ResultAmount = styled.Text`
-  font-size: ${vs(32)}px;
-  font-weight: 700;
-  color: ${theme.colors.primary_text};
-`;
-
-const ResultCurrency = styled.Text`
+const RateValue = styled.Text`
   font-size: ${vs(16)}px;
   font-weight: 600;
-  color: ${theme.colors.blue};
+  color: ${theme.colors.primary_text};
   margin-top: ${vs(4)}px;
 `;
 
-const RateInfo = styled.Text`
-  font-size: ${vs(12)}px;
-  color: ${theme.colors.secondary_text};
-  margin-top: ${vs(16)}px;
-`;
-
-const getCurrencySymbol = (currencyCode: string) => {
-  try {
-    const formatted = new Intl.NumberFormat("en", {
-      style: "currency",
-      currency: currencyCode,
-      currencyDisplay: "narrowSymbol",
-    }).format(0);
-    return formatted.replace(/[\d.,\s]/g, "");
-  } catch {
-    return currencyCode;
-  }
-};
-
-const convertCzkToForeign = (czkAmount: number, rate: ExchangeRate): number => {
-  // rate.rate = how many CZK for rate.amount units of foreign currency
-  // e.g., 1 EUR = 24.27 CZK, 100 HUF = 6.373 CZK
-  return (czkAmount / rate.rate) * rate.amount;
-};
-
-const formatAmount = (amount: number): string => {
-  if (amount >= 1000) {
-    return amount.toLocaleString("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
-  }
-  return amount.toFixed(4).replace(/\.?0+$/, "") || "0";
-};
+const BASE_CURRENCY = "CZK";
 
 type ConvertScreenProps = {
   initialCode?: string;
@@ -87,27 +43,75 @@ export const ConvertScreen = ({ initialCode }: ConvertScreenProps) => {
   const query = useRates();
   const rates = query.data?.rates ?? [];
 
-  const [amount, setAmount] = useState("1000");
-  const [selectedCode, setSelectedCode] = useState(initialCode || "EUR");
+  const [fromAmount, setFromAmount] = useState("1000");
+  const [fromCurrency, setFromCurrency] = useState(BASE_CURRENCY);
+  const [toCurrency, setToCurrency] = useState(initialCode || "EUR");
 
-  const selectedRate = useMemo(
-    () => rates.find((r) => r.code === selectedCode),
-    [rates, selectedCode],
+  // Build currency list including CZK
+  const currencyList = useMemo(() => {
+    const list = rates.map((r) => ({ code: r.code, country: r.country }));
+    // Add CZK if not present
+    if (!list.find((c) => c.code === BASE_CURRENCY)) {
+      list.unshift({ code: BASE_CURRENCY, country: "Czech Republic" });
+    }
+    return list;
+  }, [rates]);
+
+  const fromRate = useMemo(
+    () => rates.find((r) => r.code === fromCurrency),
+    [rates, fromCurrency],
   );
 
-  const convertedAmount = useMemo(() => {
-    const numAmount = parseFloat(amount) || 0;
-    if (!selectedRate || numAmount === 0) return 0;
-    return convertCzkToForeign(numAmount, selectedRate);
-  }, [amount, selectedRate]);
+  const toRate = useMemo(
+    () => rates.find((r) => r.code === toCurrency),
+    [rates, toCurrency],
+  );
 
-  const handleAmountChange = (text: string) => {
-    // Only allow numbers and decimal point
-    const cleaned = text.replace(/[^0-9.]/g, "");
-    // Prevent multiple decimal points
-    const parts = cleaned.split(".");
-    if (parts.length > 2) return;
-    setAmount(cleaned);
+  // Convert any currency to CZK
+  const toCzk = (amount: number, rate: ExchangeRate | undefined): number => {
+    if (!rate) return amount; // Already CZK
+    return (amount * rate.rate) / rate.amount;
+  };
+
+  // Convert CZK to any currency
+  const fromCzk = (
+    czkAmount: number,
+    rate: ExchangeRate | undefined,
+  ): number => {
+    if (!rate) return czkAmount; // Target is CZK
+    return (czkAmount / rate.rate) * rate.amount;
+  };
+
+  const convertedAmount = useMemo(() => {
+    const numAmount = parseFloat(fromAmount) || 0;
+    if (numAmount === 0) return "0";
+
+    // Convert: from → CZK → to
+    const inCzk =
+      fromCurrency === BASE_CURRENCY ? numAmount : toCzk(numAmount, fromRate);
+    const result =
+      toCurrency === BASE_CURRENCY ? inCzk : fromCzk(inCzk, toRate);
+
+    return result.toFixed(2);
+  }, [fromAmount, fromCurrency, toCurrency, fromRate, toRate]);
+
+  // Calculate exchange rate display
+  const exchangeRateDisplay = useMemo(() => {
+    if (fromCurrency === toCurrency) return "1 = 1";
+
+    const oneUnit = 1;
+    const inCzk =
+      fromCurrency === BASE_CURRENCY ? oneUnit : toCzk(oneUnit, fromRate);
+    const result =
+      toCurrency === BASE_CURRENCY ? inCzk : fromCzk(inCzk, toRate);
+
+    return `1 ${fromCurrency} = ${result.toFixed(4)} ${toCurrency}`;
+  }, [fromCurrency, toCurrency, fromRate, toRate]);
+
+  const handleSwap = () => {
+    setFromCurrency(toCurrency);
+    setToCurrency(fromCurrency);
+    setFromAmount(convertedAmount);
   };
 
   return (
@@ -116,40 +120,34 @@ export const ConvertScreen = ({ initialCode }: ConvertScreenProps) => {
 
       <QueryResult query={query}>
         <Content>
-          <Label style={{ marginBottom: vs(8) }}>Amount in CZK</Label>
-          <Input
-            value={amount}
-            onChangeText={handleAmountChange}
-            placeholder="Enter amount"
-            keyboardType="decimal-pad"
-            autoFocus
-          />
+          <ConverterContainer>
+            <RateInfoContainer>
+              <RateText>Exchange Rate</RateText>
+              <RateValue>{exchangeRateDisplay}</RateValue>
+            </RateInfoContainer>
 
-          <Separator size={theme.spacing.xl} />
+            <CurrencyInputBox
+              label="Amount"
+              amount={fromAmount}
+              onAmountChange={setFromAmount}
+              currencyCode={fromCurrency}
+              onCurrencyChange={setFromCurrency}
+              currencies={currencyList}
+              editable
+              autoFocus
+            />
 
-          <Label style={{ marginBottom: vs(8) }}>Convert to</Label>
-          <CurrencyPicker
-            data={rates.map((r) => ({ code: r.code, country: r.country }))}
-            selectedCode={selectedCode}
-            onSelect={setSelectedCode}
-          />
+            <SwapButton onPress={handleSwap} />
 
-          <Separator size={theme.spacing["3xl"]} />
-
-          <ResultContainer>
-            <ResultLabel>You get approximately</ResultLabel>
-            <ResultAmount>
-              {getCurrencySymbol(selectedCode)} {formatAmount(convertedAmount)}
-            </ResultAmount>
-            <ResultCurrency>{selectedRate?.currency}</ResultCurrency>
-
-            {selectedRate && (
-              <RateInfo>
-                Rate: {selectedRate.amount} {selectedCode} = {selectedRate.rate}{" "}
-                CZK
-              </RateInfo>
-            )}
-          </ResultContainer>
+            <CurrencyInputBox
+              label="Converted to"
+              amount={convertedAmount}
+              currencyCode={toCurrency}
+              onCurrencyChange={setToCurrency}
+              currencies={currencyList}
+              editable={false}
+            />
+          </ConverterContainer>
         </Content>
       </QueryResult>
     </Container>
