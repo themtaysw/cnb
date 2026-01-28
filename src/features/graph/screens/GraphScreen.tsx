@@ -1,12 +1,8 @@
-import { Card } from "@/src/components/ui/Card";
 import { Center } from "@/src/components/ui/Center";
 import { Container } from "@/src/components/ui/Container";
 import { Content } from "@/src/components/ui/Content";
 import { CurrencyPicker } from "@/src/components/ui/CurrencyPicker";
-import { Header } from "@/src/components/ui/Header";
-import { Label } from "@/src/components/ui/Label";
 import { Row } from "@/src/components/ui/Row";
-import { Separator } from "@/src/components/ui/Separator";
 import {
   useAvailableCurrencies,
   useHistoricalRates,
@@ -17,16 +13,79 @@ import { Circle, LinearGradient, vec } from "@shopify/react-native-skia";
 import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Dimensions, View } from "react-native";
 import { runOnJS, useAnimatedReaction } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import styled from "styled-components/native";
 import { Area, CartesianChart, Line, useChartPressState } from "victory-native";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
-const CHART_HEIGHT = SCREEN_HEIGHT * 0.55;
+const CHART_HEIGHT = SCREEN_HEIGHT * 0.5;
 
-const StatValue = styled.Text`
-  font-size: ${vs(16)}px;
+const PriceContainer = styled.View`
+  align-items: center;
+  margin-top: ${vs(24)}px;
+`;
+
+const PriceDate = styled.Text`
+  font-size: ${vs(12)}px;
+  color: ${theme.colors.secondary_text};
+  margin-bottom: ${vs(4)}px;
+`;
+
+const PriceAmount = styled.Text`
+  font-size: ${vs(40)}px;
   font-weight: 700;
   color: ${theme.colors.primary_text};
+`;
+
+const StatsRow = styled.View`
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: ${vs(16)}px;
+  margin-top: ${vs(8)}px;
+`;
+
+const StatText = styled.Text<{ color?: string }>`
+  font-size: ${vs(14)}px;
+  font-weight: 500;
+  color: ${({ color }) => color || theme.colors.secondary_text};
+`;
+
+const YearSelectorRow = styled.View`
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: ${vs(16)}px;
+  margin-top: ${vs(24)}px;
+  padding: ${vs(12)}px;
+  background-color: ${theme.colors.secondary_bg};
+  border-radius: ${vs(12)}px;
+`;
+
+const YearButton = styled.Pressable<{ disabled?: boolean }>`
+  width: ${vs(36)}px;
+  height: ${vs(36)}px;
+  border-radius: ${vs(18)}px;
+  background-color: ${({ disabled }) =>
+    disabled ? "transparent" : theme.colors.blue};
+  align-items: center;
+  justify-content: center;
+  opacity: ${({ disabled }) => (disabled ? 0.3 : 1)};
+`;
+
+const YearButtonText = styled.Text<{ disabled?: boolean }>`
+  font-size: ${vs(18)}px;
+  font-weight: 600;
+  color: ${({ disabled }) =>
+    disabled ? theme.colors.secondary_text : theme.colors.white};
+`;
+
+const YearText = styled.Text`
+  font-size: ${vs(18)}px;
+  font-weight: 700;
+  color: ${theme.colors.primary_text};
+  min-width: ${vs(60)}px;
+  text-align: center;
 `;
 
 const ChartContainer = styled.View`
@@ -41,55 +100,12 @@ const ErrorText = styled.Text`
   text-align: center;
 `;
 
-const InfoDate = styled.Text`
-  font-size: ${vs(12)}px;
-  color: ${theme.colors.secondary_text};
-  margin-bottom: ${vs(4)}px;
-`;
-
-const InfoRate = styled.Text`
-  font-size: ${vs(24)}px;
-  font-weight: 700;
-  color: ${theme.colors.primary_text};
-`;
-
-const InfoHint = styled.Text`
-  font-size: ${vs(12)}px;
-  color: ${theme.colors.secondary_text};
-  margin-top: ${vs(4)}px;
-`;
-
-const YearButton = styled.Pressable<{ disabled?: boolean }>`
-  width: ${vs(32)}px;
-  height: ${vs(32)}px;
-  border-radius: ${vs(16)}px;
-  background-color: ${({ disabled }) =>
-    disabled ? theme.colors.secondary_bg : theme.colors.blue};
-  align-items: center;
-  justify-content: center;
-  opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
-`;
-
-const YearButtonText = styled.Text<{ disabled?: boolean }>`
-  font-size: ${vs(16)}px;
-  font-weight: 600;
-  color: ${({ disabled }) =>
-    disabled ? theme.colors.secondary_text : theme.colors.white};
-`;
-
-const YearText = styled.Text`
-  font-size: ${vs(18)}px;
-  font-weight: 700;
-  color: ${theme.colors.primary_text};
-  min-width: ${vs(50)}px;
-  text-align: center;
-`;
-
 const DEFAULT_CURRENCY = "EUR";
 const CURRENT_YEAR = new Date().getFullYear();
 const MIN_YEAR = 1991; // CNB data available from 1991
 
 export const GraphScreen = () => {
+  const { top, bottom } = useSafeAreaInsets();
   const [selectedCurrency, setSelectedCurrency] = useState(DEFAULT_CURRENCY);
   const [selectedYear, setSelectedYear] = useState(CURRENT_YEAR);
   const { state, isActive } = useChartPressState({ x: 0, y: { rate: 0 } });
@@ -162,73 +178,61 @@ export const GraphScreen = () => {
   const isLoading = currenciesQuery.isLoading || ratesQuery.isLoading;
   const hasError = ratesQuery.error || !ratesData;
 
+  // Get display values
+  const displayRate = activeDataPoint
+    ? activeDataPoint.rate
+    : (chartData[chartData.length - 1]?.rate ?? 0);
+  const displayDate = activeDataPoint
+    ? activeDataPoint.date
+    : (chartData[chartData.length - 1]?.date ?? "");
+
+  // Calculate change from first to displayed rate
+  const changeAmount = useMemo(() => {
+    if (chartData.length === 0) return 0;
+    const first = chartData[0].rate;
+    return displayRate - first;
+  }, [chartData, displayRate]);
+
   return (
     <Container>
-      <Header title="Exchange Rate" />
-
-      <Content>
-        <Row justify="space-between">
+      <Content style={{ paddingTop: top * 2 }}>
+        <Row justify="center">
           <CurrencyPicker
             data={currencies}
             selectedCode={selectedCurrency}
             onSelect={setSelectedCurrency}
             variant="minimal"
           />
-
-          <Row gap={24}>
-            <View>
-              <Label>Min</Label>
-              <StatValue>{stats.min.toFixed(2)}</StatValue>
-            </View>
-            <View>
-              <Label>Max</Label>
-              <StatValue>{stats.max.toFixed(2)}</StatValue>
-            </View>
-            <View>
-              <Label>Change</Label>
-              <StatValue
-                style={{
-                  color:
-                    stats.change >= 0
-                      ? theme.colors.success
-                      : theme.colors.error,
-                }}
-              >
-                {stats.change >= 0 ? "+" : ""}
-                {stats.change.toFixed(2)}%
-              </StatValue>
-            </View>
-          </Row>
         </Row>
 
-        <Separator size={theme.spacing.lg} />
-
         {!isLoading && !hasError && chartData.length > 0 && (
-          <Card centered style={{ marginTop: vs(16) }}>
-            {activeDataPoint ? (
-              <>
-                <InfoDate>{activeDataPoint.date}</InfoDate>
-                <InfoRate>
-                  {ratesData?.amount} {selectedCurrency} ={" "}
-                  {activeDataPoint.rate.toFixed(3)} CZK
-                </InfoRate>
-              </>
-            ) : (
-              <>
-                <InfoDate>
-                  Latest: {chartData[chartData.length - 1]?.date}
-                </InfoDate>
-                <InfoRate>
-                  {ratesData?.amount} {selectedCurrency} ={" "}
-                  {chartData[chartData.length - 1]?.rate.toFixed(3)} CZK
-                </InfoRate>
-                <InfoHint>Touch graph to explore</InfoHint>
-              </>
-            )}
-          </Card>
+          <PriceContainer>
+            <PriceDate>{displayDate}</PriceDate>
+            <PriceAmount>Kč {displayRate.toFixed(2)}</PriceAmount>
+            <StatsRow>
+              <StatText
+                color={
+                  changeAmount >= 0 ? theme.colors.success : theme.colors.error
+                }
+              >
+                {changeAmount >= 0 ? "+" : ""}
+                {changeAmount.toFixed(2)} Kč
+              </StatText>
+              <StatText
+                color={
+                  stats.change >= 0 ? theme.colors.success : theme.colors.error
+                }
+              >
+                {stats.change >= 0 ? "▲" : "▼"}{" "}
+                {Math.abs(stats.change).toFixed(2)}%
+              </StatText>
+              <StatText>Min {stats.min.toFixed(2)}</StatText>
+              <StatText>Max {stats.max.toFixed(2)}</StatText>
+            </StatsRow>
+          </PriceContainer>
         )}
 
-        <Row justify="flex-end" gap={8} style={{ marginTop: vs(12) }}>
+        <YearSelectorRow>
           <YearButton
             disabled={!canGoBack}
             onPress={() => canGoBack && setSelectedYear((y) => y - 1)}
@@ -242,7 +246,7 @@ export const GraphScreen = () => {
           >
             <YearButtonText disabled={!canGoForward}>›</YearButtonText>
           </YearButton>
-        </Row>
+        </YearSelectorRow>
 
         <ChartContainer>
           {isLoading ? (
@@ -254,7 +258,7 @@ export const GraphScreen = () => {
               <ErrorText>No data available for {selectedCurrency}</ErrorText>
             </Center>
           ) : (
-            <View style={{ height: CHART_HEIGHT }}>
+            <View style={{ height: CHART_HEIGHT, marginBottom: bottom * 2 }}>
               <CartesianChart
                 data={chartData}
                 xKey="index"
