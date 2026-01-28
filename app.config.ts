@@ -67,9 +67,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     config: {
       usesNonExemptEncryption: false,
     },
-    appleTeamId: "XH66L5M6JJ",
-    appStoreUrl: "https://apps.apple.com/app/caliplaces/id6673914705",
-    usesAppleSignIn: true,
   },
   androidNavigationBar: {
     enforceContrast: true,
