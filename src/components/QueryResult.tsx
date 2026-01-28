@@ -52,9 +52,14 @@ export const QueryResult = ({
       return <>{renderError(errorQuery.refetch)}</>;
     }
 
+    const errorMessage =
+      (errorQuery.error as Error)?.message || "Something went wrong";
+
     return (
       <Error
-        type="server"
+        type="custom"
+        title="Error"
+        text={errorMessage}
         onPress={errorQuery.refetch}
         isLoading={errorQuery.isFetching}
       />

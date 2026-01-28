@@ -1,13 +1,14 @@
+import { router } from "expo-router";
+import React, { memo } from "react";
+import styled from "styled-components/native";
+
 import { BASE_CURRENCY } from "@/src/common/constants/currencies";
 import { Row } from "@/src/components/ui/Row";
+import CurrencyDisplay from "@/src/features/home/components/CurrencyDisplay";
 import theme from "@/src/theme";
 import { currencyToFlag } from "@/src/utils/currencyToEmoji";
 import { vs } from "@/src/utils/normalize";
 import { ExchangeRate } from "@/src/utils/parseRates";
-import { router } from "expo-router";
-import styled from "styled-components/native";
-
-import CurrencyDisplay from "@/src/features/home/components/CurrencyDisplay";
 
 const RateContainer = styled.Pressable`
   padding: ${vs(16)}px;
@@ -69,4 +70,4 @@ const SingleRate = ({
   );
 };
 
-export default SingleRate;
+export default memo(SingleRate);

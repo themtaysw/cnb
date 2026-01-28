@@ -1,18 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
 
+import { HISTORICAL_RATES_BASE_URL } from "@/src/common/constants/api";
+import { ApiError } from "@/src/common/errors";
 import {
   extractCurrencyCodes,
   parseYearlyRates,
   YearlyRatesResult,
 } from "@/src/utils/parseYearlyRates";
 
-const BASE_URL =
-  "https://www.cnb.cz/en/financial-markets/foreign-exchange-market/central-bank-exchange-rate-fixing/central-bank-exchange-rate-fixing";
-
 const getYearlyRates = async (year: number): Promise<string> => {
-  const response = await fetch(`${BASE_URL}/year.txt?year=${year}`);
+  const response = await fetch(
+    `${HISTORICAL_RATES_BASE_URL}/year.txt?year=${year}`,
+  );
   if (!response.ok) {
-    throw new Error("Failed to fetch historical rates");
+    throw new ApiError("Failed to fetch historical rates", response.status);
   }
   return response.text();
 };
@@ -20,7 +21,7 @@ const getYearlyRates = async (year: number): Promise<string> => {
 export const useHistoricalRates = (currencyCode: string, year?: number) => {
   const currentYear = year ?? new Date().getFullYear();
 
-  return useQuery<YearlyRatesResult | null, Error>({
+  return useQuery<YearlyRatesResult | null, ApiError>({
     queryKey: ["historicalRates", currentYear, currencyCode],
     queryFn: async () => {
       const text = await getYearlyRates(currentYear);
@@ -34,7 +35,7 @@ export const useHistoricalRates = (currencyCode: string, year?: number) => {
 export const useAvailableCurrencies = (year?: number) => {
   const currentYear = year ?? new Date().getFullYear();
 
-  return useQuery<string[], Error>({
+  return useQuery<string[], ApiError>({
     queryKey: ["availableCurrencies", currentYear],
     queryFn: async () => {
       const text = await getYearlyRates(currentYear);

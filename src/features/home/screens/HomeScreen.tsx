@@ -1,4 +1,5 @@
 import { LegendList } from "@legendapp/list";
+import { useCallback } from "react";
 import { RefreshControl } from "react-native";
 
 import { QueryResult } from "@/src/components/QueryResult";
@@ -9,9 +10,20 @@ import { useRates } from "@/src/features/home/api/useRates";
 import SingleRate from "@/src/features/home/components/SingleRate";
 import { styles } from "@/src/features/home/styles";
 import theme from "@/src/theme";
+import { ExchangeRate } from "@/src/utils/parseRates";
 
 export const HomeScreen = () => {
   const query = useRates();
+
+  const renderItem = useCallback(
+    ({ item }: { item: ExchangeRate }) => <SingleRate rate={item} />,
+    [],
+  );
+
+  const keyExtractor = useCallback(
+    (item: ExchangeRate, index: number) => `${item.country}-${index}`,
+    [],
+  );
 
   return (
     <Container>
@@ -19,8 +31,8 @@ export const HomeScreen = () => {
       <QueryResult query={query}>
         <LegendList
           data={query.data?.rates ?? []}
-          keyExtractor={(item, index) => `${item.country}-${index}`}
-          renderItem={({ item }) => <SingleRate rate={item} />}
+          keyExtractor={keyExtractor}
+          renderItem={renderItem}
           recycleItems
           contentContainerStyle={styles.container}
           ListHeaderComponent={() => <Separator size={theme.spacing.lg} />}

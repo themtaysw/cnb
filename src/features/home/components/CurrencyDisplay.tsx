@@ -1,6 +1,8 @@
+import React, { memo } from "react";
+import styled from "styled-components/native";
+
 import theme from "@/src/theme";
 import { vs } from "@/src/utils/normalize";
-import styled from "styled-components/native";
 
 const getCurrencySymbol = (currencyCode: string) => {
   try {
@@ -51,4 +53,4 @@ const CurrencyDisplay = ({
   );
 };
 
-export default CurrencyDisplay;
+export default memo(CurrencyDisplay);
