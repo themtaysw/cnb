@@ -1,0 +1,38 @@
+export default {
+  primary: {
+    green: "#8CC1B7",
+    purple: "#B54DFF",
+    blue: "#5996FF",
+    favourite: "#E96B93",
+    bg: "#FFFFFF",
+    outline: "rgba(255, 255, 255, 0.5)",
+    overlay: "rgba(228, 228, 228, 0.298)",
+    overlay_modal: "rgba(0, 0, 0, 0.5)",
+    overlay_place: "rgba(0, 0, 0, 0.3)",
+    overlay_green: "rgba(140, 193, 183, 0.8)",
+    text: "#2B2B2B",
+  },
+  secondary: {
+    bg: "#F0F0F0",
+    text: "#757575",
+    text_tertiary: "rgba(117, 117, 117, 0.7)",
+    gold: "#F5BD02",
+    overlay2: "rgba(255, 255, 255, 0.4)",
+    overlay3: "rgba(255, 255, 255, 0.3)",
+    outline2: "rgba(117, 117, 117, 0.1)",
+    overlay_secondary: "rgba(0, 0, 0, 0.03)",
+  },
+  informational: {
+    warning: "#E1811F",
+    warning_text: "#f6ba65",
+    error: "#E96B93",
+    success: "#80BC9C",
+  },
+  prime: {
+    white: "#FFFFFF",
+    black: "#000000",
+    white50: "#F0F0F0",
+    white100: "#757575",
+    white200: "#757575",
+  },
+};

@@ -3,7 +3,7 @@ import * as React from "react";
 export const useRefreshByUser = (refetch: () => Promise<unknown>) => {
   const [isRefetchingByUser, setIsRefetchingByUser] = React.useState(false);
 
-  async function refetchByUser() {
+  const refetchByUser = async () => {
     setIsRefetchingByUser(true);
 
     try {
@@ -11,7 +11,7 @@ export const useRefreshByUser = (refetch: () => Promise<unknown>) => {
     } finally {
       setIsRefetchingByUser(false);
     }
-  }
+  };
 
   return {
     isRefetchingByUser,
