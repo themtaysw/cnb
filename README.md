@@ -9,6 +9,7 @@ A React Native mobile app for viewing Czech National Bank (CNB) exchange rates w
 - **Historical Graphs** - Interactive charts showing exchange rate history from 1991 to present
 - **Year Selector** - Browse historical data by year
 - **Pull to Refresh** - Always get the latest rates
+- **Robust Error Handling** - Global error boundaries and user-friendly API error messages
 
 ## Tech Stack
 
@@ -19,21 +20,23 @@ A React Native mobile app for viewing Czech National Bank (CNB) exchange rates w
 - **Styled Components** for styling
 - **Victory Native** with Skia for charts
 - **React Native Reanimated** for animations
+- **Jest & React Native Testing Library** for unit testing
 
 ## Project Structure
 
 ```
 src/
-├── common/           # Shared constants and state
+├── common/           # Shared constants, state, and error handling
 ├── components/       # Reusable UI components
 │   └── ui/           # Base UI components (Button, Input, etc.)
 ├── features/         # Feature-based modules
-│   ├── convert/      # Currency converter screen
+│   ├── convert/      # Currency converter logic and screen
+│   ├── error/        # Error boundaries and components
 │   ├── graph/        # Historical rate graphs
 │   └── home/         # Home screen with rates list
 ├── hooks/            # Custom React hooks
 ├── theme/            # Colors and theming
-└── utils/            # Utility functions
+└── utils/            # Utility functions and parsers
 ```
 
 ## Getting Started
@@ -70,38 +73,37 @@ The app uses the CNB public API:
 
 ## Running Tests
 
-This project uses [Maestro](https://maestro.mobile.dev/) for end-to-end testing.
+This project uses **Jest** for unit testing and **Maestro** for end-to-end testing.
 
-### Install Maestro
+### Unit Tests
 
-```bash
-# macOS
-brew install maestro
-
-# Other platforms
-curl -Ls "https://get.maestro.mobile.dev" | bash
-```
-
-### Run Tests
+Unit tests cover utility functions (parsers) and critical business logic.
 
 ```bash
-# Make sure the app is running on a simulator/emulator first
-pnpm ios  # or pnpm android
+# Run unit tests
+pnpm test
 
-# Run all tests
-maestro test maestro/
-
-# Run individual tests
-maestro test maestro/home.yaml
-maestro test maestro/converter.yaml
+# Run tests in watch mode
+pnpm test -- --watch
 ```
 
-### Test Coverage
+### E2E Tests (Maestro)
 
-| Test             | Description                                                             |
-| ---------------- | ----------------------------------------------------------------------- |
-| `home.yaml`      | Verifies home screen loads and currency list is scrollable              |
-| `converter.yaml` | Tests full conversion flow: navigation, input, swap, currency selection |
+1. **Install Maestro**:
+
+   ```bash
+   curl -Ls "https://get.maestro.mobile.dev" | bash
+   ```
+
+2. **Run Tests**:
+
+   ```bash
+   # Make sure the app is running on a simulator/emulator first
+   pnpm ios  # or pnpm android
+
+   # Run all E2E tests
+   maestro test maestro/
+   ```
 
 ## Scripts
 
@@ -110,7 +112,7 @@ maestro test maestro/converter.yaml
 | `pnpm start`   | Start Expo development server |
 | `pnpm ios`     | Run on iOS simulator          |
 | `pnpm android` | Run on Android emulator       |
-| `pnpm web`     | Run in web browser            |
+| `pnpm test`    | Run Jest unit tests           |
 | `pnpm lint`    | Run ESLint                    |
 
 ## API Reference
