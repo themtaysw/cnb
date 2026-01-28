@@ -1,50 +1,125 @@
-# Welcome to your Expo app 👋
+# CNB Exchange Rates
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A React Native mobile app for viewing Czech National Bank (CNB) exchange rates with real-time currency conversion and historical rate graphs.
 
-## Get started
+## Features
 
-1. Install dependencies
+- **Currency List** - View all CNB exchange rates with country flags
+- **Currency Converter** - Convert between CZK and any available currency with real-time calculations
+- **Historical Graphs** - Interactive charts showing exchange rate history from 1991 to present
+- **Year Selector** - Browse historical data by year
+- **Pull to Refresh** - Always get the latest rates
 
-   ```bash
-   npm install
-   ```
+## Tech Stack
 
-2. Start the app
+- **React Native** with Expo SDK 54
+- **TypeScript** for type safety
+- **Expo Router** for file-based navigation
+- **React Query** (@tanstack/react-query) for data fetching and caching
+- **Styled Components** for styling
+- **Victory Native** with Skia for charts
+- **React Native Reanimated** for animations
 
-   ```bash
-   npx expo start
-   ```
+## Project Structure
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+src/
+├── common/           # Shared constants and state
+├── components/       # Reusable UI components
+│   └── ui/           # Base UI components (Button, Input, etc.)
+├── features/         # Feature-based modules
+│   ├── convert/      # Currency converter screen
+│   ├── graph/        # Historical rate graphs
+│   └── home/         # Home screen with rates list
+├── hooks/            # Custom React hooks
+├── theme/            # Colors and theming
+└── utils/            # Utility functions
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Getting Started
 
-## Learn more
+### Prerequisites
 
-To learn more about developing your project with Expo, look at the following resources:
+- Node.js 18+
+- pnpm (recommended) or npm
+- iOS Simulator (macOS) or Android Emulator
+- [Maestro](https://maestro.mobile.dev/) for E2E tests
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Installation
 
-## Join the community
+```bash
+# Install dependencies
+pnpm install
 
-Join our community of developers creating universal apps.
+# Start the development server
+pnpm start
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+# Run on iOS
+pnpm ios
+
+# Run on Android
+pnpm android
+```
+
+### Environment
+
+The app uses the CNB public API:
+
+- Daily rates: `https://www.cnb.cz/en/financial-markets/foreign-exchange-market/central-bank-exchange-rate-fixing/central-bank-exchange-rate-fixing/daily.txt`
+- Yearly rates: `https://www.cnb.cz/en/financial-markets/foreign-exchange-market/central-bank-exchange-rate-fixing/central-bank-exchange-rate-fixing/year.txt`
+
+## Running Tests
+
+This project uses [Maestro](https://maestro.mobile.dev/) for end-to-end testing.
+
+### Install Maestro
+
+```bash
+# macOS
+brew install maestro
+
+# Other platforms
+curl -Ls "https://get.maestro.mobile.dev" | bash
+```
+
+### Run Tests
+
+```bash
+# Make sure the app is running on a simulator/emulator first
+pnpm ios  # or pnpm android
+
+# Run all tests
+maestro test maestro/
+
+# Run individual tests
+maestro test maestro/home.yaml
+maestro test maestro/converter.yaml
+```
+
+### Test Coverage
+
+| Test             | Description                                                             |
+| ---------------- | ----------------------------------------------------------------------- |
+| `home.yaml`      | Verifies home screen loads and currency list is scrollable              |
+| `converter.yaml` | Tests full conversion flow: navigation, input, swap, currency selection |
+
+## Scripts
+
+| Command        | Description                   |
+| -------------- | ----------------------------- |
+| `pnpm start`   | Start Expo development server |
+| `pnpm ios`     | Run on iOS simulator          |
+| `pnpm android` | Run on Android emulator       |
+| `pnpm web`     | Run in web browser            |
+| `pnpm lint`    | Run ESLint                    |
+
+## API Reference
+
+The app fetches data from the Czech National Bank's public API:
+
+- **Daily Rates** - Current exchange rates updated daily
+- **Yearly Rates** - Historical data available from 1991
+
+## License
+
+Private project.
