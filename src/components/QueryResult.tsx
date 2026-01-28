@@ -39,7 +39,7 @@ export const QueryResult = ({
     }
 
     return (
-      <Box flex={1} justifyContent="center" alignItems="center">
+      <Box>
         <ActivityIndicator size="small" color={colors.primary.blue} />
       </Box>
     );

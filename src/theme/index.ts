@@ -1,5 +1,3 @@
-import { createTheme } from "@shopify/restyle";
-
 import colors from "@/src/theme/colors";
 import { vs } from "@/src/utils/normalize";
 
@@ -10,7 +8,7 @@ const palette = {
   ...colors.prime,
 };
 
-export const theme = createTheme({
+export const theme = {
   colors: {
     ...palette,
     transparent: "transparent",
@@ -84,140 +82,57 @@ export const theme = createTheme({
     defaults: {
       color: "primary_text",
       fontSize: vs(14),
-      includeFontPadding: false,
     },
     h1: {
-      fontWeight: "bold",
+      fontWeight: "bold" as const,
       fontSize: vs(28),
     },
     h2: {
-      fontWeight: "bold",
+      fontWeight: "bold" as const,
       fontSize: vs(20),
     },
     p1: {
-      fontWeight: "500",
+      fontWeight: "500" as const,
       fontSize: vs(16),
     },
     p2: {
-      fontWeight: "500",
+      fontWeight: "500" as const,
       fontSize: vs(12),
     },
     title: {
-      fontWeight: "700",
+      fontWeight: "700" as const,
       fontSize: vs(14),
     },
     subtitle: {
-      fontWeight: "500",
+      fontWeight: "500" as const,
       fontSize: vs(14),
     },
     badge: {
       fontSize: vs(10),
       lineHeight: vs(13.5),
-      fontWeight: "700",
+      fontWeight: "700" as const,
     },
     label: {
-      fontWeight: "700",
+      fontWeight: "700" as const,
       fontSize: vs(10),
       letterSpacing: 1.5,
-      textTransform: "uppercase",
+      textTransform: "uppercase" as const,
     },
     terms: {
-      fontWeight: "500",
+      fontWeight: "500" as const,
       fontSize: vs(12),
     },
     button: {
-      color: "primary_text",
-      fontWeight: "700",
+      fontWeight: "700" as const,
       fontSize: vs(16),
       lineHeight: vs(21.6),
     },
     small: {
-      color: "primary_text",
-      fontWeight: "500",
+      fontWeight: "500" as const,
       fontSize: vs(10),
     },
   },
-  buttonVariants: {
-    defaults: {
-      width: "100%",
-      height: 60,
-      alignItems: "center",
-      justifyContent: "center",
-      borderRadius: "full",
-      backgroundColor: "primary_bg",
-      paddingHorizontal: 0,
-      overflow: "hidden",
-    },
-    disabled: {
-      backgroundColor: "green",
-      opacity: 0.5,
-    },
-    secondary: {
-      borderColor: "outline",
-      borderWidth: 2,
-      backgroundColor: "green",
-    },
-    textOnly: {
-      backgroundColor: "transparent",
-      borderColor: "transparent",
-    },
-    destructive: {
-      borderColor: "outline",
-      borderWidth: 2,
-      backgroundColor: "error",
-    },
-    warning: {
-      borderColor: "outline",
-      borderWidth: 2,
-      backgroundColor: "warning",
-    },
-    bordered: {
-      borderWidth: 2,
-      borderColor: "green",
-      backgroundColor: "transparent",
-    },
-    unstyled: {
-      height: undefined,
-      backgroundColor: "transparent",
-    },
-  },
-  inputVariants: {
-    defaults: {
-      borderRadius: "16",
-      color: "primary_text",
-      justifyContent: "center",
-      backgroundColor: "primary_bg",
-      fontSize: vs(14),
-    },
-    large: {
-      minHeight: vs(55),
-      justifyContent: "center",
-      fontSize: vs(16),
-      color: "primary_text",
-    },
-    multiline: {
-      minHeight: vs(100),
-      height: "auto",
-      paddingVertical: 0,
-      fontSize: vs(16),
-      color: "primary_text",
-      lineHeight: "100%",
-    },
-    bordered: {
-      height: "auto",
-      borderWidth: 0.3,
-      paddingHorizontal: "lg",
-    },
-  },
-  boxVariants: {
-    defaults: {
-      backgroundColor: "primary_bg",
-    },
-    disabled: {
-      opacity: 0.5,
-    },
-  },
-});
+} as const;
 
 export type Theme = typeof theme;
 export default theme;

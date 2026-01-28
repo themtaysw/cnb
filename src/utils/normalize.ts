@@ -27,7 +27,6 @@ const verticalScale = (size: number) =>
 const moderateVerticalScale = (size: number, factor = 0.5) =>
   size + (verticalScale(size) - size) * factor;
 
-// eslint-disable-next-line id-length
 export const s = scale;
 export const vs = verticalScale;
 export const ms = moderateScale;

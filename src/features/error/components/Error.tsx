@@ -59,28 +59,14 @@ export const Error = ({
   };
 
   return (
-    <Box
-      flex={1}
-      px="lg"
-      justifyContent="center"
-      alignItems="center"
-      bg="primary_bg"
-      style={style}
-    >
-      <Box mb="md">{renderIcon()}</Box>
-      <Text variant="h1" textAlign="center" color="primary_text">
-        {renderTitle()}
-      </Text>
-      <Text
-        variant="p1"
-        fontWeight="500"
-        color="primary_text"
-        textAlign="center"
-      >
+    <Box style={style}>
+      <Box>{renderIcon()}</Box>
+      <Text variant="h1">{renderTitle()}</Text>
+      <Text variant="p1" color="primary_text">
         {renderText()}
       </Text>
       {onPress && (
-        <Button onPress={onPress} mt="md" isLoading={isLoading} width="auto">
+        <Button onPress={onPress} isLoading={isLoading}>
           {buttonText || "Try again"}
         </Button>
       )}

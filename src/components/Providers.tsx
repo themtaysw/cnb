@@ -1,6 +1,6 @@
-import { ThemeProvider } from "@shopify/restyle";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { PropsWithChildren } from "react";
+import { ThemeProvider } from "styled-components/native";
 
 import theme from "@/src/theme";
 

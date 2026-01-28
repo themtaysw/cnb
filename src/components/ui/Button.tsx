@@ -1,137 +1,91 @@
-import {
-  BackgroundColorShorthandProps,
-  BorderProps,
-  LayoutProps,
-  PositionProps,
-  SpacingShorthandProps,
-  VariantProps,
-  backgroundColorShorthand,
-  border,
-  composeRestyleFunctions,
-  createRestyleComponent,
-  createVariant,
-  layout,
-  spacingShorthand,
-  useRestyle,
-} from "@shopify/restyle";
 import React, { PropsWithChildren } from "react";
 import {
   ActivityIndicator,
   Pressable,
   PressableStateCallbackType,
   StyleProp,
-  StyleSheet,
-  View,
   ViewStyle,
 } from "react-native";
+import styled from "styled-components/native";
 
-import { Box } from "@/src/components/ui/Box";
 import { Text } from "@/src/components/ui/Text";
 import { Theme } from "@/src/theme";
 
-type RestyleProps = VariantProps<Theme, "buttonVariants"> &
-  LayoutProps<Theme> &
-  SpacingShorthandProps<Theme> &
-  BackgroundColorShorthandProps<Theme> &
-  BorderProps<Theme> &
-  PositionProps<Theme>;
-
-type DefaultProps = {
+type Props = PropsWithChildren<{
   onPress: () => void;
   isDisabled?: boolean;
   isLoading?: boolean;
   pressedOpacity?: number;
   style?: StyleProp<ViewStyle>;
-  contentContainerStyle?: StyleProp<ViewStyle>;
   color?: keyof Theme["colors"];
-};
+}>;
 
-type Props = RestyleProps & PropsWithChildren & DefaultProps;
+const ButtonContainer = styled.View`
+  width: 100%;
+  height: 60px;
+  align-items: center;
+  justify-content: center;
+  border-radius: ${({ theme }) => theme.borderRadii.full}px;
+  background-color: ${({ theme }) => theme.colors.primary_bg};
+  overflow: hidden;
+`;
 
-const buttonVariant = createVariant<Theme, "buttonVariants">({
-  themeKey: "buttonVariants",
-});
-const ButtonContainer = createRestyleComponent<
-  VariantProps<Theme, "buttonVariants"> & React.ComponentProps<typeof Box>,
-  Theme
->([buttonVariant], Box);
+const DisabledContainer = styled(ButtonContainer)`
+  opacity: 0.5;
+`;
 
-const restyleFunctions = composeRestyleFunctions<Theme, RestyleProps>([
-  buttonVariant,
-  layout,
-  spacingShorthand,
-  backgroundColorShorthand,
-  //@ts-ignore
-  border,
-]);
+const ContentWrapper = styled.View`
+  width: 100%;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+`;
 
 export const Button = ({
   onPress,
   color,
   children,
-  contentContainerStyle,
   isDisabled = false,
   isLoading = false,
   pressedOpacity = 0.8,
-  ...rest
+  style,
 }: Props) => {
-  const restyleProps: typeof rest = {
-    ...rest,
-    variant: isDisabled ? "disabled" : rest.variant,
-  };
-  const props = useRestyle(restyleFunctions, restyleProps);
-
-  const styleProps = ({ pressed }: PressableStateCallbackType) => {
-    return [
-      pressed ? { opacity: pressedOpacity } : null,
-      ...(props.style as StyleProp<ViewStyle>[]),
-    ];
-  };
+  const styleProps = ({ pressed }: PressableStateCallbackType) => [
+    pressed ? { opacity: pressedOpacity } : null,
+    style,
+  ];
 
   if (isLoading) {
     return (
-      <ButtonContainer variant="disabled" {...props}>
+      <DisabledContainer style={style}>
         <ActivityIndicator />
-      </ButtonContainer>
+      </DisabledContainer>
     );
   }
 
   if (isDisabled) {
     return (
-      <ButtonContainer {...props}>
+      <DisabledContainer style={style}>
         {typeof children === "object" ? (
-          <View style={[styles.childrenWrapper, contentContainerStyle]}>
-            {children}
-          </View>
+          <ContentWrapper>{children}</ContentWrapper>
         ) : (
-          <Text variant="button" color={color} px="lg">
+          <Text variant="button" color={color}>
             {children}
           </Text>
         )}
-      </ButtonContainer>
+      </DisabledContainer>
     );
   }
 
   return (
     <Pressable style={styleProps} onPress={onPress}>
       {typeof children === "object" ? (
-        <View style={[styles.childrenWrapper, contentContainerStyle]}>
-          {children}
-        </View>
+        <ContentWrapper>{children}</ContentWrapper>
       ) : (
-        <Text variant="button" color={color} px="lg">
+        <Text variant="button" color={color}>
           {children}
         </Text>
       )}
     </Pressable>
   );
 };
-
-const styles = StyleSheet.create({
-  childrenWrapper: {
-    width: "100%",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
