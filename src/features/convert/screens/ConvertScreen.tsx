@@ -121,6 +121,7 @@ export const ConvertScreen = ({ initialCode }: ConvertScreenProps) => {
             </RateInfoContainer>
 
             <CurrencyInputBox
+              testID="from-currency"
               label="Amount"
               amount={fromAmount}
               onAmountChange={setFromAmount}
@@ -134,6 +135,7 @@ export const ConvertScreen = ({ initialCode }: ConvertScreenProps) => {
             <SwapButton onPress={handleSwap} />
 
             <CurrencyInputBox
+              testID="to-currency"
               label="Converted to"
               amount={convertedAmount}
               currencyCode={toCurrency}

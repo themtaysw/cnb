@@ -33,7 +33,7 @@ export const Header = ({ title, onBack }: Props) => {
     <HeaderContainer style={{ paddingTop: top }}>
       <HeaderContent>
         {onBack && (
-          <Pressable onPress={onBack}>
+          <Pressable testID="back-button" onPress={onBack}>
             <BackButton>←</BackButton>
           </Pressable>
         )}

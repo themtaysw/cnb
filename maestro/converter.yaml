@@ -1,0 +1,57 @@
+appId: com.matejcp.cnb
+---
+- launchApp:
+    clearState: true
+
+- extendedWaitUntil:
+    visible: "Currencies"
+    timeout: 10000
+
+- scrollUntilVisible:
+    element:
+      id: "currency-item-EUR"
+    direction: DOWN
+    timeout: 15000
+
+- tapOn:
+    id: "currency-item-EUR"
+
+- extendedWaitUntil:
+    visible: "Convert"
+    timeout: 5000
+
+- assertVisible: "Exchange Rate"
+
+- tapOn:
+    id: "from-currency-input"
+- eraseText: 10
+- inputText: "500"
+
+- assertVisible:
+    id: "to-currency-display"
+
+- tapOn:
+    id: "swap-button"
+
+- tapOn:
+    id: "to-currency-currency-button"
+
+- extendedWaitUntil:
+    visible: "Select Currency"
+    timeout: 5000
+
+- scrollUntilVisible:
+    element:
+      id: "currency-option-USD"
+    direction: DOWN
+    timeout: 15000
+
+- tapOn:
+    id: "currency-option-USD"
+
+- tapOn:
+    id: "back-button"
+
+- extendedWaitUntil:
+    visible: "Currencies"
+    timeout: 5000

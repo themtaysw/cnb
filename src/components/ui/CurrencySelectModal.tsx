@@ -80,6 +80,7 @@ type CurrencySelectModalProps = {
   selectedCode: string;
   onSelect: (code: string) => void;
   title?: string;
+  testID?: string;
 };
 
 export const CurrencySelectModal = ({
@@ -89,6 +90,7 @@ export const CurrencySelectModal = ({
   selectedCode,
   onSelect,
   title = "Select Currency",
+  testID,
 }: CurrencySelectModalProps) => {
   const handleSelect = (code: string) => {
     onSelect(code);
@@ -106,10 +108,12 @@ export const CurrencySelectModal = ({
         </ModalHeader>
 
         <FlatList
+          testID={testID ? `${testID}-list` : "currency-list"}
           data={data}
           keyExtractor={(item) => item.code}
           renderItem={({ item }) => (
             <CurrencyItem
+              testID={`currency-option-${item.code}`}
               isSelected={item.code === selectedCode}
               onPress={() => handleSelect(item.code)}
             >

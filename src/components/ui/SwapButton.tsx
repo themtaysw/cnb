@@ -25,7 +25,7 @@ type SwapButtonProps = {
 
 export const SwapButton = ({ onPress }: SwapButtonProps) => {
   return (
-    <Button onPress={onPress}>
+    <Button testID="swap-button" onPress={onPress}>
       <Icon>⇅</Icon>
     </Button>
   );

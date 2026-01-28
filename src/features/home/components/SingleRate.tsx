@@ -49,7 +49,10 @@ const SingleRate = ({
   const flag = currencyToFlag(rate.code);
 
   return (
-    <RateContainer onPress={() => router.push(`/convert/${rate.code}`)}>
+    <RateContainer
+      testID={`currency-item-${rate.code}`}
+      onPress={() => router.push(`/convert/${rate.code}`)}
+    >
       <Row gap={12}>
         <Flag>{flag}</Flag>
         <InfoContainer>

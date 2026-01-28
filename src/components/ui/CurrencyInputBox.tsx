@@ -77,6 +77,7 @@ type CurrencyInputBoxProps = {
   currencies: CurrencyItem[];
   editable?: boolean;
   autoFocus?: boolean;
+  testID?: string;
 };
 
 export const CurrencyInputBox = ({
@@ -88,6 +89,7 @@ export const CurrencyInputBox = ({
   currencies,
   editable = true,
   autoFocus = false,
+  testID,
 }: CurrencyInputBoxProps) => {
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const flag = currencyToFlag(currencyCode);
@@ -111,11 +113,12 @@ export const CurrencyInputBox = ({
 
   return (
     <>
-      <Container>
+      <Container testID={testID}>
         <LabelText>{label}</LabelText>
         <InputRow>
           {editable ? (
             <AmountInput
+              testID={testID ? `${testID}-input` : undefined}
               value={amount}
               onChangeText={handleAmountChange}
               placeholder="0"
@@ -125,12 +128,19 @@ export const CurrencyInputBox = ({
               numberOfLines={1}
             />
           ) : (
-            <AmountDisplay numberOfLines={1} adjustsFontSizeToFit>
+            <AmountDisplay
+              testID={testID ? `${testID}-display` : undefined}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+            >
               {formatDisplayAmount(amount)}
             </AmountDisplay>
           )}
 
-          <CurrencyButton onPress={() => setIsPickerOpen(true)}>
+          <CurrencyButton
+            testID={testID ? `${testID}-currency-button` : undefined}
+            onPress={() => setIsPickerOpen(true)}
+          >
             <Flag>{flag}</Flag>
             <CurrencyCode>{currencyCode}</CurrencyCode>
             <Chevron>▼</Chevron>

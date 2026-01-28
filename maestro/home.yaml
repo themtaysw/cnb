@@ -1,0 +1,17 @@
+appId: com.matejcp.cnb
+---
+- launchApp:
+    clearState: true
+
+- extendedWaitUntil:
+    visible: "Currencies"
+    timeout: 10000
+
+- scrollUntilVisible:
+    element:
+      id: "currency-item-EUR"
+    direction: DOWN
+    timeout: 15000
+
+- assertVisible:
+    id: "currency-item-EUR"
